@@ -2,6 +2,6 @@
   "title": "Admin Panel",
   "description": "Administrative interface for managing servers and viewing logs",
   "version": "1.0.0",
-  "author": "Maslenka",
-  "page": "module_page_admin"
+  "author": "SeniorCMS",
+  "route": "/admin"
 }

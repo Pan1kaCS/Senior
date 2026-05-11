@@ -1,0 +1,9 @@
+{
+  "title": "Страница не найдена",
+  "page": "module_page_about",
+  "route": "/about",
+  "methods": [
+    "GET",
+    "POST"
+  ]
+}

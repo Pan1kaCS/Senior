@@ -40,3 +40,65 @@ function rate_limit(string $key, int $max, int $perSeconds): void {
     }
 }
 
+
+/**
+ * Проверка: является ли текущий пользователь админом
+ * @return bool
+ */
+function is_admin_user(): bool {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // ✅ Проверяем ВСЕ возможные варианты имени сессии
+    $steamId64 = $_SESSION['steam']['steam_id64'] 
+              ?? $_SESSION['user_admin'] 
+              ?? $_SESSION['steamid'] 
+              ?? '';
+    
+    if (empty($steamId64)) {
+        return false;
+    }
+    
+    global $pdo, $prefix;
+    
+    // Подключение к БД если ещё не подключены
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        $cfgFile = __DIR__ . '/../../storage/sessions/db.php';
+        if (!is_file($cfgFile)) return false;
+        
+        $cfg = require $cfgFile;
+        
+        // Поддержка разных форматов конфига
+        $host = $cfg['Core'][0]['HOST'] ?? $cfg['host'] ?? '';
+        $user = $cfg['Core'][0]['USER'] ?? $cfg['username'] ?? '';
+        $pass = $cfg['Core'][0]['PASS'] ?? $cfg['password'] ?? '';
+        $dbName = $cfg['Core'][0]['DB'][0]['DB'] ?? $cfg['database'] ?? '';
+        $prefix = $cfg['Core'][0]['DB'][0]['Prefix'][0]['table'] ?? $cfg['prefix'] ?? 'lvl_';
+        
+        if (!$host || !$dbName) return false;
+        
+        try {
+            $pdo = new PDO(
+                "mysql:host=$host;dbname=$dbName;charset=utf8mb4",
+                $user, $pass,
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+        } catch (Exception $e) {
+            error_log('DB connect failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    try {
+        // ✅ Запрос БЕЗ "active = 1" — этой колонки нет в вашей таблице
+        $stmt = $pdo->prepare(
+            "SELECT id FROM {$prefix}web_admins WHERE steam_id64 = :sid LIMIT 1"
+        );
+        $stmt->execute([':sid' => $steamId64]);
+        return (bool)$stmt->fetch();
+    } catch (Exception $e) {
+        error_log('Admin query failed: ' . $e->getMessage());
+        return false;
+    }
+}

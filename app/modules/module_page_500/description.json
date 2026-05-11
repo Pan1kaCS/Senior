@@ -1,0 +1,9 @@
+{
+  "title": "Страница не найдена",
+  "page": "module_page_500",
+  "route": "/500",
+  "methods": [
+    "GET",
+    "POST"
+  ]
+}
