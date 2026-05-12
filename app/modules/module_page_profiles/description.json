@@ -4,9 +4,19 @@
   "version": "1.1.0",
   "author": "GigaCode",
   "page": "module_page_profiles",
-  "route": "/profiles/{steamid}/",
-  "description_vars": ["steamid"],
-  "methods": ["GET"],
-  "requires_auth": true,
+  "route": "/profiles",
+  "additional_routes": [
+    "/profiles"
+  ],
+  "description_vars": [
+    "steamid"
+  ],
+  "dependencies": [
+    "pdo"
+  ],
+  "methods": [
+    "GET"
+  ],
+  "requires_auth": false,
   "admin_only": false
 }

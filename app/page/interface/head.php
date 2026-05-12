@@ -12,7 +12,6 @@ $themeCssHref = (isset($graphics) && $graphics) ? $graphics->getThemeCssHref() :
 
 <link rel="stylesheet" href="/public/assets/themes/blackwhite/base.css" />
     <link rel="stylesheet" href="<?= h($themeCssHref) ?>" />
-    <link rel="stylesheet" href="/public/assets/themes/blackwhite/custom.css" />
     <link rel="stylesheet" href="/public/assets/themes/blackwhite/sidebar.css" />
 </head>
 <body>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Senior CMS - Main Entry Point
  * ФИНАЛЬНАЯ версия с правильным порядком выполнения
@@ -7,14 +8,15 @@
 declare(strict_types=1);
 
 // === 🔍 Авто-определение базовой директории ===
-function findBaseDir(string $currentDir): string {
+function findBaseDir(string $currentDir): string
+{
     $pathsToCheck = [
         $currentDir,
         dirname($currentDir),
         dirname(dirname($currentDir)),
         $_SERVER['DOCUMENT_ROOT'] ?? '',
     ];
-    
+
     foreach ($pathsToCheck as $path) {
         if (is_dir($path . '/app') && is_file($path . '/app/includes/functions.php')) {
             return realpath($path);
@@ -102,16 +104,38 @@ $router = new Router('/');
 $modules = new Modules(APP_DIR . '/modules', APP_DIR . '/templates', STORAGE_DIR);
 
 // Авто-регистрация роутов из модулей
+// Добавляем поддержку /profiles/<steamid64> через wildcard маршрута
+// (так как Router не умеет параметры в середине пути)
+$requestedPathForProfiles = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+// Поддержка /profiles и /profiles/<steamid64> без параметрного matching в Router
+if (is_string($requestedPathForProfiles) && str_starts_with($requestedPathForProfiles, '/profiles')) {
+    // Если /profiles/{steamid} (валидация steamid64)
+    if (preg_match('#^/profiles/(7656119\d{10})$#', $requestedPathForProfiles)) {
+        $route = 'module_page_profiles';
+    }
+
+    // Если просто /profiles — редиректим на профиль из сессии, если есть
+    if ($requestedPathForProfiles === '/profiles' || $requestedPathForProfiles === '/profiles/') {
+        $sid = $_SESSION['steam']['steam_id64'] ?? '';
+        if (is_string($sid) && preg_match('/^7656119\d{10}$/', $sid)) {
+            header('Location: /profiles/' . $sid, true, 302);
+            exit;
+        }
+    }
+}
+
+
 foreach ($modules->getModulesList() as $module) {
     $page    = $module['page']    ?? '';
     $route   = $module['route']   ?? '';
     $methods = $module['methods'] ?? ['GET'];
-    
+
     if (empty($page) || empty($route)) {
         error_log("⚠️ Skipping module with invalid config: " . json_encode($module));
         continue;
     }
-    
+
     foreach ($methods as $method) {
         $router->map(strtoupper($method), $route, $page);
     }
@@ -126,6 +150,12 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $route = $router->match($method, $uri);
 
+// Если до этого мы распознали /profiles/<steamid64>, гарантируем рендер профилей
+if (isset($route) && $route !== 'module_page_profiles' && is_string($requestedPathForProfiles ?? '') && preg_match('#^/profiles/7656119\d{10}$#', $requestedPathForProfiles)) {
+    $route = 'module_page_profiles';
+}
+
+
 // Обеспечение существования storage
 if (!is_dir(STORAGE_DIR)) {
     mkdir(STORAGE_DIR, 0777, true);
@@ -137,7 +167,7 @@ $dbConfigFile = STORAGE_DIR . '/sessions/db.php';
 if (!is_file($dbConfigFile) && $route !== 'install_db') {
     http_response_code(200);
     $graphics = new Graphics(APP_DIR, $modules, STORAGE_DIR, $theme);
-    
+
     ob_start();
     if (is_file(APP_DIR . '/modules/install_db/forward/render.php')) {
         include APP_DIR . '/modules/install_db/forward/render.php';
@@ -145,7 +175,7 @@ if (!is_file($dbConfigFile) && $route !== 'install_db') {
         echo '<div class="alert alert-warning">Модуль установки не найден</div>';
     }
     $content = ob_get_clean();
-    
+
     $title = 'Установка БД';
     ob_start();
     include APP_DIR . '/page/interface/head.php';
@@ -153,7 +183,7 @@ if (!is_file($dbConfigFile) && $route !== 'install_db') {
     include APP_DIR . '/page/interface/sidebar.php';
     include APP_DIR . '/page/interface/container.php';
     $wrapperContent = ob_get_clean();
-    
+
     echo "<!DOCTYPE html><html><body>" . $wrapperContent . $content . "</body></html>";
     exit;
 }
