@@ -1,0 +1,189 @@
+:root {
+    --sidebar-width: 240px;
+}
+
+.sidebar {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: var(--sidebar-width);
+    padding: 18px 14px;
+    border-right: 1px solid var(--border);
+    height: calc(100vh - 72px);
+    background: rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(12px);
+}
+
+.sidebar__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    overflow: auto;
+    scrollbar-width: none;
+    height: 100%;
+    padding: 6px 0;
+}
+
+.sidebar__item-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ссылка пункта */
+.sidebal__item {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0);
+    background: rgba(15, 15, 15, 0.35);
+    transition: 180ms ease;
+    text-decoration: none;
+
+    /* чтобы иконки/текст не дергались */
+    min-height: 44px;
+}
+
+.sidebal__item:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+.sidebal__item:active {
+    transform: translateY(0);
+}
+
+/* svg внутри ссылок */
+.sidebal__item svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex: 0 0 auto;
+    color: currentColor;
+}
+
+.sidebal__item svg path {
+    fill: currentColor;
+}
+
+.sidebar__icon {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        position: static;
+        width: auto;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 14px;
+    }
+}
+
+/* Кнопка (для совпадения с вашим примером) */
+button,
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: normal;
+    vertical-align: middle;
+    gap: 0.5rem;
+    font-weight: var(--font-weight-5);
+    font-size: var(--font-size-m);
+    width: max-content;
+    height: var(--input-height);
+    color: var(--text-custom);
+    background-color: var(--button);
+    border: 1px solid transparent;
+    border-radius: var(--br-8);
+    outline: 1px solid transparent;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    background-image: none;
+    -webkit-user-select: none;
+    user-select: none;
+    padding-inline: 1rem;
+    transition: var(--transition-duration);
+    cursor: pointer;
+}
+
+button svg,
+.button svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+    transition: var(--transition-duration);
+}
+
+button:hover,
+.button:hover {
+    background-color: var(--button-hover);
+    color: var(--text-default);
+}
+
+button:focus,
+.button:focus {
+    border: 1px solid var(--transparent-10-w);
+}
+
+button.active,
+.button.active {
+    background-color: var(--span);
+    color: var(--text-default);
+}
+
+/* Красивые стили для кнопки авторизации (вверху) */
+.topbar .steam-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+
+    font-weight: var(--font-weight-5);
+    font-size: var(--font-size-m);
+
+    height: 42px;
+    padding: 0 1rem;
+
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    cursor: pointer;
+
+    transition: 180ms ease;
+    backdrop-filter: blur(8px);
+}
+
+.topbar .steam-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    opacity: 0.95;
+}
+
+.topbar .steam-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+}
+
+.topbar .steam-btn:active {
+    transform: translateY(0);
+}
+
+.topbar .steam-btn:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.35);
+}
